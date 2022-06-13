@@ -1,0 +1,31 @@
+import os, sys, optparse
+from exif import Image
+import webbrowser
+from PyPDF2 import PdfFileReader, PdfFileWriter
+import webbrowser
+
+def convertGPScoordinate(coordinate, coordinate_ref):
+    decimal_degrees = coordinate[0] + \
+                      coordinate[1] / 60 + \
+                      coordinate[2] / 3600
+    
+    if coordinate_ref == "S" or coordinate_ref == "W":
+        decimal_degrees = -decimal_degrees
+    
+    return decimal_degrees
+
+def figMetaData(file_path):
+    img_doc = Image(open(file_path, "rb"))
+
+    if not img_doc.has_exif:
+        sys.exit(f"Image does not contain EXIF data.")
+    else:
+        print(f"Image contains EXIF (version {img_doc.exif_version}) data.")
+        lat=convertGPScoordinate(img_doc.gps_latitude, img_doc.gps_latitude_ref)
+        long=convertGPScoordinate(img_doc.gps_longitude, img_doc.gps_longitude_ref)
+        url=f"http://www.google.com/maps/place/{lat},{long}"
+        webbrowser.open_new_tab(url)
+        print(lat)
+        print(long)
+        
+    print(f"{dir(img_doc)}\n")
